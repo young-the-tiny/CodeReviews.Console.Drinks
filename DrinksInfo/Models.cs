@@ -12,7 +12,7 @@ public class Category
     [JsonPropertyName("strCategory")] 
     public string? Name { get; set; }
 
-    public override string ToString() => Name;
+    public override string? ToString() => Name;
 }
 
 public class Drink
@@ -24,7 +24,7 @@ public class Drink
     [JsonPropertyName("strDrinkThumb")] 
     public string? ImageUrl { get; set; }
 
-    public override string ToString() => Name;
+    public override string? ToString() => Name;
 }
 public class DrinkDetail
 {
