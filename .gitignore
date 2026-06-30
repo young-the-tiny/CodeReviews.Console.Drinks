@@ -453,5 +453,5 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-DrinksInfo.TUTORIAL.md
-DrinksInfo.TESTING_TUTORIAL.md
+DrinksInfo/TUTORIAL.md
+DrinksInfo/TESTING_TUTORIAL.md
