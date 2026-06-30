@@ -12,52 +12,64 @@ public interface IDrinksApi
 
 public class HttpClientDrinksApi : IDrinksApi
 {
-    private static readonly HttpClient Http = new()
+    private readonly HttpClient _http;
+    private static readonly HttpClient DefaultHttp = new()
     {
         BaseAddress = new Uri("https://www.thecocktaildb.com/api/json/v1/1/")
     };
 
+    public HttpClientDrinksApi(HttpClient? http = null)
+    {
+        _http = http ?? DefaultHttp;
+    }
+
     public async Task<List<Category>> GetCategoriesAsync()
     {
-        var res = await Http.GetFromJsonAsync<CategoryList>("list.php?c=list");
+        var res = await _http.GetFromJsonAsync<CategoryList>("list.php?c=list");
         return res?.Drinks ?? new();
     }
 
     public async Task<List<Drink>> GetDrinksByCategoryAsync(string category)
     {
-        var res = await Http.GetFromJsonAsync<DrinkList>(
+        var res = await _http.GetFromJsonAsync<DrinkList>(
             $"filter.php?c={Uri.EscapeDataString(category)}");
         return res?.Drinks ?? new();
     }
 
     public async Task<DrinkDetail?> GetDrinkByIdAsync(string id)
     {
-        var res = await Http.GetFromJsonAsync<DrinkDetailList>($"lookup.php?i={id}");
+        var res = await _http.GetFromJsonAsync<DrinkDetailList>($"lookup.php?i={id}");
         return res?.Drinks?.FirstOrDefault();
     }
 }
 
 public class RestSharpDrinksApi : IDrinksApi
 {
-    private static readonly RestClient Client = new("https://www.thecocktaildb.com/api/json/v1/1/");
+    private readonly RestClient _client;
+    private static readonly RestClient DefaultClient = new("https://www.thecocktaildb.com/api/json/v1/1/");
+
+    public RestSharpDrinksApi(RestClient? client = null)
+    {
+        _client = client ?? DefaultClient;
+    }
 
     public async Task<List<Category>> GetCategoriesAsync()
     {
-        var res = await Client.GetAsync<CategoryList>(new RestRequest("list.php?c=list"));
+        var res = await _client.GetAsync<CategoryList>(new RestRequest("list.php?c=list"));
         return res?.Drinks ?? new();
     }
 
     public async Task<List<Drink>> GetDrinksByCategoryAsync(string category)
     {
         var req = new RestRequest("filter.php").AddQueryParameter("c", category);
-        var res = await Client.GetAsync<DrinkList>(req);
+        var res = await _client.GetAsync<DrinkList>(req);
         return res?.Drinks ?? new();
     }
 
     public async Task<DrinkDetail?> GetDrinkByIdAsync(string id)
     {
         var req = new RestRequest("lookup.php").AddQueryParameter("i", id);
-        var res = await Client.GetAsync<DrinkDetailList>(req);
+        var res = await _client.GetAsync<DrinkDetailList>(req);
         return res?.Drinks?.FirstOrDefault();
     }
 }

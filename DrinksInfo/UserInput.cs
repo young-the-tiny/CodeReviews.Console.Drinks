@@ -4,7 +4,7 @@ namespace DrinksInfo;
 
 public class UserInput
 {
-    private static readonly HttpClient ImageClient = new(); // Downloading thumbnail
+    private static readonly HttpClient ImageClient = new() { Timeout = TimeSpan.FromSeconds(3) }; // Downloading thumbnail
     private readonly IDrinksApi _api;
     private readonly Database _db;
     public UserInput(IDrinksApi api, Database db)
@@ -23,33 +23,37 @@ public class UserInput
                 .AddChoices("Browse Drinks", "View Favorites", "Most viewed", "Exit"));
             switch (choice)
             {
-                case "Browse drinks": await BrowseAsync(); break;
-                case "View Favorites": showFavorite(); break;
-                case "Most viewed": mostViewed(); break;
+                case "Browse Drinks": await BrowseAsync(); break;
+                case "View Favorites": ShowFavorite(); break;
+                case "Most viewed": MostViewed(); break;
                 case "Exit": return;
             }
         }
     }
-    public async Task BrowseAsync()
+    private async Task BrowseAsync()
     {
         var categories = await _api.GetCategoriesAsync();
         if (categories.Count == 0) { Pause("No categories returned."); return; }
+
         // SelectionPrompt<Category> uses the ToString() override from Step 1.
         var category = AnsiConsole.Prompt(
-                        new SelectionPrompt<Category>()
-                        .Title("Pick a [green]category[/]:")
-                        .PageSize(15)
-                        .AddChoices(categories));
+            new SelectionPrompt<Category>()
+                .Title("Pick a [green]category[/]:")
+                .PageSize(15)
+                .AddChoices(categories));
+
         var drinks = await _api.GetDrinksByCategoryAsync(category.Name);
         if (drinks.Count == 0) { Pause("No drinks in that category."); return; }
+
         var drink = AnsiConsole.Prompt(
-                     new SelectionPrompt<Drink>()
-                     .Title($"Pick a [green]drink[/] from {category.Name}:")
-                    .PageSize(15)
-                    .AddChoices(drinks));
-        await showDrinkAsync(drink.Id);
+            new SelectionPrompt<Drink>()
+                .Title($"Pick a [green]drink[/] from {category.Name}:")
+                .PageSize(15)
+                .AddChoices(drinks));
+
+        await ShowDrinkAsync(drink.Id);
     }
-    public async Task showDrinkAsync(string id)
+    private async Task ShowDrinkAsync(string id)
     {
         var d = await _api.GetDrinkByIdAsync(id);
         if (d == null) { Pause("No drink retured"); return; }
@@ -91,17 +95,31 @@ public class UserInput
         }
         catch
         {
-            AnsiConsole.MarkupLine("[grey] (image unavailable: {Markup.Escape(url)})[/]");
+            AnsiConsole.MarkupLine($"[grey](image unavailable: {Markup.Escape(url)})[/]");
         }
-
     }
-    public async Task showFavorite()
-    {
 
+    private void ShowFavorite()
+    {
+        AnsiConsole.Clear();
+        var favDrink = _db.GetFavoriteDrinks();
+        if (favDrink.Count() == 0) { Pause("No favorite drink yet."); return; }
+        var table = new Table().AddColumn("Favorite");
+        foreach (var f in favDrink) { table.AddRow(Markup.Escape(f.Name)); }
+        AnsiConsole.Write(table);
+        Pause();
     }
-    public async Task mostViewed()
+    private void MostViewed()
     {
+        // Same logic as showFavorite
+        AnsiConsole.Clear();
+        var rows = _db.GetMostView();
+        if (rows.Count == 0) { Pause("Nothing viewed yet."); return; }
 
+        var table = new Table().AddColumn("Drink").AddColumn("Views");
+        foreach (var r in rows) table.AddRow(Markup.Escape(r.Name), r.count.ToString());
+        AnsiConsole.Write(table);
+        Pause();
     }
     private static void Pause(string? msg = null)
     {

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using DrinksInfo;
 using FluentAssertions;
 using Xunit;
@@ -53,4 +53,36 @@ public class ModelsTest
         //assert
         ingredients.Should().BeEmpty();
     }
+    [Fact]
+    public async Task TestRealApi_HttpClient()
+    {
+        var api = new HttpClientDrinksApi();
+        var categories = await api.GetCategoriesAsync();
+        categories.Should().NotBeEmpty();
+        
+        var firstCategory = categories[0].Name;
+        var drinks = await api.GetDrinksByCategoryAsync(firstCategory);
+        drinks.Should().NotBeEmpty();
+        
+        var firstDrink = drinks[0].Id;
+        var details = await api.GetDrinkByIdAsync(firstDrink);
+        details.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task TestRealApi_RestSharp()
+    {
+        var api = new RestSharpDrinksApi();
+        var categories = await api.GetCategoriesAsync();
+        categories.Should().NotBeEmpty();
+        
+        var firstCategory = categories[0].Name;
+        var drinks = await api.GetDrinksByCategoryAsync(firstCategory);
+        drinks.Should().NotBeEmpty();
+        
+        var firstDrink = drinks[0].Id;
+        var details = await api.GetDrinkByIdAsync(firstDrink);
+        details.Should().NotBeNull();
+    }
 }
+
