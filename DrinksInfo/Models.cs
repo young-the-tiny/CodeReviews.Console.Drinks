@@ -46,7 +46,7 @@ public class DrinkDetail
     {
         for (int i = 1; i<=15; i++)
         {
-            var ing = Str($"strIngredients{i}");
+            var ing = Str($"strIngredient{i}");
             if (string.IsNullOrWhiteSpace(ing)) continue;
             yield return (ing.Trim(), (Str($"strMeasure{i}") ?? "").Trim());
         }

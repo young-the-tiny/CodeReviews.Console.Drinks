@@ -6,7 +6,7 @@ public interface IDrinkApi
 {
     Task<List<Category>> GetCategoriesAsync();
     Task<List<Drink>> GetDrinksByCategoryAsync(string category);
-    Task<List<DrinkDetail>> GetDrinkDetailsAsync(string id);
+    Task<DrinkDetail?> GetDrinkDetailsAsync(string id);
 }
 
 public class HttpClients : IDrinkApi
@@ -23,7 +23,7 @@ public class HttpClients : IDrinkApi
     }
     public async Task<List<Drink>> GetDrinksByCategoryAsync(string category)
     {
-        // EscapeDataString handles spaces, e.g. "Ordinary Drink" -> "Ordinary%20Drink".
+        // EscapeDataString handles spaces,"Ordinary Drink" -> "Ordinary%20Drink".
         var res = await Http.GetFromJsonAsync<DrinksList>(
             $"filter.php?c{Uri.EscapeDataString(category)}");
         return res?.Drinks ?? new();
@@ -33,7 +33,4 @@ public class HttpClients : IDrinkApi
         var res = await Http.GetFromJsonAsync<DrinksDetailList>($"lookup.php?i={id}");
         return res?.Drinks?.FirstOrDefault();
     }
-
-
-
 }
