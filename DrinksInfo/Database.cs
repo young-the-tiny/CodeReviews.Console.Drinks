@@ -1,10 +1,13 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.Data.Sqlite;
 
 namespace DrinksInfo;
 
 public record favoriteDrink(string Id, string Name);
-public record viewRow(string Name, int count);
+public record viewRow(string Name, int count)
+{
+    public viewRow(string Name, long Count) : this(Name, (int)Count) {}
+}
 
 public class Database
 {
@@ -57,7 +60,7 @@ public class Database
             c.Execute("DELETE FROM Favorites WHERE Id = @id", new { id });
             return false;
         }
-        c.Execute("INSERT INTO Favorites (Id, Name) VALUES (@id, @name,)", new { id, name });
+        c.Execute("INSERT INTO Favorites (Id, Name) VALUES (@id, @name)", new { id, name });
         return true;
     }
     public List<favoriteDrink> GetFavoriteDrinks()
