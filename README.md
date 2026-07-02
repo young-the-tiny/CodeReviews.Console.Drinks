@@ -8,19 +8,17 @@ This project was built to compare two different HTTP request client styles (raw 
 
 ```
 ├── DrinksInfo
-│   ├── Database.cs          # SQLite + Dapper operations (upserts & queries)
-│   ├── DrinksServices.cs    # IDrinksApi interface & implementations (HttpClient / RestSharp)
+│   ├── Database.cs          # SQLite + Dapper operations
+│   ├── DrinksServices.cs    # IDrinksApi interface & implementations 
 │   ├── Models.cs            # API models & extension data deserialization helpers
 │   ├── UserInput.cs         # Spectre menus, recipe screens, and terminal flows
 │   ├── Program.cs           # Application entry point & configuration wiring
-│   └── DrinksInfo.Tests     # Unit & integration test suites
+│   └── DrinksInfo.Tests     # Testing file
 ```
-
 ---
-
 ## Database Schema
 
-The app uses two simple tables stored in a local SQLite database (`drinks.db`):
+The app uses two tables stored in a local SQLite database (`drinks.db`):
 
 ### 1. `Favorites`
 * `Id` (TEXT PRIMARY KEY) - The identifier of the drink.
